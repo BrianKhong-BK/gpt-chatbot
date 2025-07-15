@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import axios from "axios";
+import data from "./data.js";
 
 dotenv.config();
 
@@ -29,17 +30,52 @@ app.post("/api/generate", async (req, res) => {
     );
   }
 
+  const keywords = prompt.toLowerCase().split(" ");
+
+  let systemPrompts = data
+    .filter((item) =>
+      item.tags?.split(" ").some((tag) => keywords.includes(tag))
+    )
+    .map((item) => item.content);
+
+  const chatbotInfoItem = data.find(
+    (item) => item.name === "Chatbot Information"
+  );
+  const chatbotInfo = chatbotInfoItem ? chatbotInfoItem.content : "";
+
+  if (chatbotInfo) {
+    systemPrompts.unshift(chatbotInfo);
+  }
+
+  if (systemPrompts.length === 1 && chatbotInfo) {
+    systemPrompts = data.map((item) => item.content);
+  }
+
+  console.log(
+    "Selected object names:",
+    data
+      .filter((item) =>
+        item.tags?.split("").some((tag) => keywords.includes(tag))
+      )
+      .map((item) => item.name)
+  );
+
   try {
+    const messages = [
+      {
+        role: "system",
+        content:
+          "You are Sigmund, a programming chatbot created by Brian Khong, dedicated to addressing Sigma School or tech-related issues. Always respond in a friendly, casual manner.",
+      },
+      ...systemPrompts.map((content) => ({ role: "system", content })),
+      { role: "user", content: prompt },
+    ];
+
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-4.1-mini",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+        messages,
         max_tokens: 50,
       },
       {
@@ -54,6 +90,7 @@ app.post("/api/generate", async (req, res) => {
       response.data.usage;
 
     const reply = response.data.choices[0].message.content;
+
     res.json({
       reply,
       token_usage: { prompt_tokens, completion_tokens, total_tokens },

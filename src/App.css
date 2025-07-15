@@ -1,0 +1,54 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding-bottom: 60px;
+}
+
+.message-bubble {
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 80%;
+}
+
+.message-bubble.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
+
+.message-bubble.ai {
+  background-color: #f8d7da;
+  align-self: flex-start;
+  text-align: left;
+  margin-right: auto;
+}
+
+.form-container {
+  display: flex;
+  gap: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  padding: 10px 0;
+}
+
+.form-control {
+  flex: 1;
+}
+
+.btn {
+  flex-shrink: 0;
+}
